@@ -24,30 +24,19 @@ else:
 
 s_v = v_max * (M * (2.0 * np.sqrt(v_max/j_max)) + N * (v_max/a_max + a_max/j_max))
 
-# Type I
-if ((v_max < v_a) and (s >= s_a)):
-    print('Type I')
+# Type I or III
+if ((v_max < v_a) and (s >= s_a)) or ((v_max < v_a) and (s < s_a) and (s >= s_v)):
+    print('Type I or III')
     t_j = np.sqrt(v_max/j_max)
     t_a = t_j
     t_v = s/v_max
 
-# Type II
-elif ((v_max >= v_a) and (s < s_a)):
-    print('Type II')
+# Type II or IV
+elif ((v_max >= v_a) and (s < s_a)) or ((v_max < v_a) and (s < s_a) and (s < s_v)):
+    print('Type II or IV')
     t_j = np.cbrt(s/(2*j_max))
     t_a = t_j
     t_v = 2 * t_j
-
-# Type III
-elif ((v_max < v_a) and (s < s_a) and (s >= s_v)):
-    print('Type III')
-    t_j = np.sqrt(v_max/j_max)
-    t_a = t_j
-    t_v = s/v_max
-
-# Type IV
-elif ((v_max < v_a) and (s < s_a) and (s < s_v)):
-    print('Type IV')
 
 # Type V
 elif ((v_max >= v_a) and (s >= s_a) and (s >= s_v)):
@@ -56,10 +45,12 @@ elif ((v_max >= v_a) and (s >= s_a) and (s >= s_v)):
     t_a = v_max/a_max
     t_v = s/v_max
 
-
 # Type VI
 elif ((v_max >= v_a) and (s >= s_a) and (s < s_v)):
     print('Type VI')
+    t_j = a_max/j_max
+    t_a = 1/2 * (np.sqrt((4*s*j_max^2 + a_max**3)/(a_max*j_max**2)) - a_max/j_max)
+    t_v = t_a + t_j
 
 t1 = t_j
 t2 = t_a
