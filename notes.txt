@@ -1,0 +1,6 @@
+Type I   : 
+Type II  : 
+Type III : j = 20, a = 200, v = 20, s = 100
+Type IV  : 
+Type V   : j = 1000, a = 100, v = 20, s = 20
+Type VI  : 
