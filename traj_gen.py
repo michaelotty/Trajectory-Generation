@@ -18,9 +18,8 @@ if ((v_max * j_max) < (a_max**2)):
     M = 1
     N = 0
 else:
-    N = 0
-    M = 1
-
+    M = 0
+    N = 1
 
 s_v = v_max * (M * (2.0 * np.sqrt(v_max/j_max)) + N * (v_max/a_max + a_max/j_max))
 
@@ -67,7 +66,6 @@ ts = 1.0 / 500.0
 s_profile = np.array([])
 v_profile = np.array([])
 a_profile = np.array([])
-
 
 t = np.arange(0, t1, ts)
 s1 = 1/6 * j_max * t**3
