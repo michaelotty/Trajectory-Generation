@@ -1,5 +1,7 @@
 """Trajectory Generator"""
 
+from math import ceil
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -61,9 +63,10 @@ print(f'Time: {t1}, {t2}, {t3}, {t4}, {t5}, {t6}, {t7}')
 
 # Create motion path step by step
 s_profile = np.array([])
+steps = ceil(t7/TS)
+t = np.linspace(0, t7, num=steps+1)
 
 # Step 1
-t = np.arange(0, t1, TS)
 s1 = 1/6 * J_MAX * t**3
 v1 = 1/2 * J_MAX * t**2
 a1 = J_MAX * t
