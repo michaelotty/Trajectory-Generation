@@ -22,6 +22,7 @@ a = 0
 last_position_demand = 0.0
 last_velocity_demand = 0.0
 fiddle = 1
+decceleration = False
 
 for i in range(len(t_range)):
     input_velocity_demand = (input_demand[i] - last_position_demand)/ts
@@ -44,15 +45,20 @@ for i in range(len(t_range)):
     # u^2 = v^2 - 2as
     # u = +-sqrt(v^2 - 2as)
 
-    if input_demand[i] - last_position_demand > 0.01:
-        sqrt2as = np.sqrt(np.abs(fiddle*2*aMax*(input_demand[i] - last_position_demand) - final_velocity**2))
-        if np.sqrt(np.abs(final_velocity**2 - fiddle*2*aMax*(input_demand[i] - last_position_demand))) < sqrt2as:
-            sqrt2as = np.sqrt(np.abs(final_velocity**2 - fiddle*2*aMax*(input_demand[i] - last_position_demand)))
+    if input_demand[i] - last_position_demand > 0.001:
+        ta = (-(v-final_velocity)+np.sqrt((v-final_velocity)**2 - 2*aMax*np.abs(input_demand[i] - s)))/aMax
 
-        if np.abs(input_velocity_demand) >= sqrt2as:
-            input_velocity_demand = np.sign(input_velocity_demand) * sqrt2as
+        # sqrt2as = np.sqrt(np.abs(fiddle*2*aMax*(input_demand[i] - last_position_demand) - final_velocity**2))
+        # if np.sqrt(np.abs(final_velocity**2 - fiddle*2*aMax*(input_demand[i] - last_position_demand))) < sqrt2as:
+        #     sqrt2as = np.sqrt(np.abs(final_velocity**2 - fiddle*2*aMax*(input_demand[i] - last_position_demand)))
 
-            a = (input_velocity_demand - last_velocity_demand)/ts
+        # if np.abs(input_velocity_demand) >= sqrt2as:
+        #     input_velocity_demand = np.sign(input_velocity_demand) * sqrt2as
+        if ta <= 0:
+            decceleration = True
+
+        if decceleration:
+            a = -aMax
         else:
             input_acceleration_demand = (input_velocity_demand - last_velocity_demand)/ts
             if np.abs(input_acceleration_demand) > aMax:
@@ -64,7 +70,6 @@ for i in range(len(t_range)):
             v = np.sign(v) * vMax
 
         tv = (input_demand[i] - s) / v
-        ta = 2 * aMax / v
 
         s += v*ts + 0.5*a*ts**2
     else:
