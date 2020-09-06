@@ -10,7 +10,7 @@ vMax = 80
 
 t_range = np.arange(0, 20, ts)
 
-input_demand = np.arctan2(2500-300*t_range, 1000)*180/np.pi
+input_demand = np.ones(len(t_range))*60#np.arctan2(2500-300*t_range, 1000)*180/np.pi
 actual_velocity_demand = np.diff(input_demand)/ts
 actual_acceleration_demand = np.diff(actual_velocity_demand)/ts
 output_demand = np.array([])
@@ -46,7 +46,7 @@ for i in range(len(t_range)):
     # u = +-sqrt(v^2 - 2as)
 
     if input_demand[i] - last_position_demand > 0.001:
-        ta = (-(v-final_velocity)+np.sqrt((v-final_velocity)**2 - 2*aMax*np.abs(input_demand[i] - s)))/aMax
+        ta = np.floor((-(v-final_velocity)+np.sqrt(np.abs((v-final_velocity)**2 - 2*aMax*input_demand[i] - s)))/aMax/ts)*ts
 
         # sqrt2as = np.sqrt(np.abs(fiddle*2*aMax*(input_demand[i] - last_position_demand) - final_velocity**2))
         # if np.sqrt(np.abs(final_velocity**2 - fiddle*2*aMax*(input_demand[i] - last_position_demand))) < sqrt2as:
@@ -54,7 +54,9 @@ for i in range(len(t_range)):
 
         # if np.abs(input_velocity_demand) >= sqrt2as:
         #     input_velocity_demand = np.sign(input_velocity_demand) * sqrt2as
-        if ta <= 0:
+        if i > 370:
+            print('')
+        if ta <= ts:
             decceleration = True
 
         if decceleration:
