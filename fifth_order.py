@@ -38,21 +38,48 @@ def create_traj5(s_0, s_f, v_0, v_f, a_0, a_f, initial_t, final_t):
 
     return [poly_5,poly_4,poly_3,poly_2,poly_1,poly_0]
 
-T_END = 1
+T_END = 3.3
+S_END = 180
 TS = 1 / 500.0
 t_range = np.arange(0, T_END, TS)
-s_traj = np.polyval(create_traj5(0, 1, 0, 0, 0, 0, 0, T_END), t_range)
+s_traj = np.polyval(create_traj5(0, S_END, 0, 0, 0, 0, 0, T_END), t_range)
 v_traj = np.gradient(s_traj, TS)
 a_traj = np.gradient(v_traj, TS)
 j_traj = np.gradient(a_traj, TS)
 
+plt.figure(1)
 plt.subplot(411)
 plt.plot(t_range, s_traj)
+plt.title('Position (deg)')
 plt.subplot(412)
 plt.plot(t_range, v_traj)
+plt.title('Velocity (deg/s)')
 plt.subplot(413)
 plt.plot(t_range, a_traj)
+plt.title('Acceleration (deg/s/s)')
 plt.subplot(414)
 plt.plot(t_range, j_traj)
+plt.title('Jerk (deg/s/s/s)')
+plt.subplots_adjust(left=0.05, right=0.99, top=0.93, bottom=0.05, hspace=0.36)
+
+s_traj = np.polyval(create_traj3(0, S_END, 0, 0, 0, T_END), t_range)
+v_traj = np.gradient(s_traj, TS)
+a_traj = np.gradient(v_traj, TS)
+j_traj = np.gradient(a_traj, TS)
+
+plt.figure(2)
+plt.subplot(411)
+plt.plot(t_range, s_traj)
+plt.title('Position (deg)')
+plt.subplot(412)
+plt.plot(t_range, v_traj)
+plt.title('Velocity (deg/s)')
+plt.subplot(413)
+plt.plot(t_range, a_traj)
+plt.title('Acceleration (deg/s/s)')
+plt.subplot(414)
+plt.plot(t_range, j_traj)
+plt.title('Jerk (deg/s/s/s)')
+plt.subplots_adjust(left=0.05, right=0.99, top=0.93, bottom=0.05, hspace=0.36)
 
 plt.show()
