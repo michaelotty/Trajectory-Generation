@@ -21,14 +21,14 @@ vMax = 80
 
 t_range = np.arange(0, 20, ts)
 
-options = int(input('Constant (1) or moving target (2): '))
-if options == 1:
-    input_position_demand = np.ones(len(t_range))*60
-else:
-    input_position_demand = np.arctan2(3000-300*t_range, 1000)*180/np.pi
 
-for i in range(len(t_range) - 6000):
-    input_position_demand[i+6000] = 60
+input_position_demand = np.arctan2(3000-300*t_range, 1000)*180/np.pi
+
+# for i in range(len(t_range) - 500):
+#     input_position_demand[i+500] = 60
+
+# for i in range(len(t_range) - 1000):
+#     input_position_demand[i+1000] = -10
 
 input_velocity_demand = np.zeros_like(input_position_demand)
 input_acceleration_demand = np.zeros_like(input_position_demand)
@@ -46,6 +46,7 @@ last_position_demand = 0.0
 last_velocity_demand = 0.0
 last_output_position_demand = 0.0
 last_output_velocity_demand = 0.0
+fiddle = 1
 
 for i in range(len(t_range)):
     input_velocity_demand[i] = (input_position_demand[i] - last_position_demand)/ts
@@ -54,7 +55,7 @@ for i in range(len(t_range)):
     last_position_demand = input_position_demand[i]
     last_velocity_demand = input_velocity_demand[i]
 
-    if abs(input_velocity_demand[i]) > vMax or abs(input_velocity_demand[i]) > aMax:
+    if abs(input_velocity_demand[i]) > vMax or abs(input_acceleration_demand[i]) > aMax:
         current_state = state['SLEWING']
 
     if current_state is state['SLEWING']:
@@ -62,16 +63,21 @@ for i in range(len(t_range)):
 
         v = symetrical_limit(s/ts, vMax, 0)
         a = symetrical_limit(v/ts, aMax, 0)
-        v = symetrical_limit(last_output_velocity_demand+a*ts, vMax, 0)
-        v = symetrical_limit(v, np.sqrt(abs(2*a*s)), 0)
+        v = symetrical_limit(v, np.sqrt(fiddle*2*aMax*abs(s)), 0)
+        v = symetrical_limit(v, a*ts, last_output_velocity_demand)
+
         last_output_velocity_demand = v
-        
-        s_tracking_limit = input_velocity_demand[i]*ts + 0.5*aMax*ts*ts
-        v_tracking_limit = np.min([input_velocity_demand[i] + aMax*ts, input_velocity_demand[i] - aMax*ts])
-        if abs(s) < (vMax*ts) and abs(v - input_velocity_demand[i]) < (aMax*ts):
+
+        if abs(s) < (abs(input_velocity_demand[i])+0.5*aMax*ts*ts) and abs(v - input_velocity_demand[i]) < (1*aMax*ts):
             current_state = state['TRACKING']
 
         output_demand[i] = last_output_position_demand + v*ts
+
+        state_array[i] = current_state
+        last_output_velocity_demand = (output_demand[i] - last_output_position_demand)/ts
+
+        last_output_position_demand = output_demand[i]
+        continue
 
     if current_state is state['TRACKING']:
         if last_output_position_demand == input_position_demand[i]:
@@ -95,9 +101,9 @@ ax1.plot(t_range, output_demand, lw=0.75)
 plt.title('Profiled demand')
 
 ax2 = plt.subplot(312, sharex=ax1)
-ax2.plot(t_range[1:], np.diff(output_demand)/ts, lw=0.75)
+ax2.plot(t_range, np.gradient(output_demand, t_range), lw=0.75)
 ax3 = plt.subplot(313, sharex=ax1)
-ax3.plot(t_range[2:], np.diff(np.diff(output_demand)/ts)/ts, lw=0.75)
+ax3.plot(t_range, np.gradient(np.gradient(output_demand, t_range), t_range), lw=0.75)
 ax3.axis([t_range[0], t_range[-1], -350, 350])
 
 plt.figure(2)
